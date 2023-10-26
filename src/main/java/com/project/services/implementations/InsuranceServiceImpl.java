@@ -4,9 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,10 +15,8 @@ import com.project.dto.SettlementRequestDTO;
 import com.project.dto.SettlementResponseDTO;
 import com.project.models.entity.Insured;
 import com.project.models.entity.Premium;
-import com.project.models.entity.Protection;
 import com.project.models.repository.InsuredRepository;
 import com.project.models.repository.PremiumRepository;
-import com.project.models.repository.ProtectionRepository;
 import com.project.services.interfaces.InsuranceService;
 
 @Service
@@ -32,44 +28,30 @@ public class InsuranceServiceImpl implements InsuranceService {
 	@Autowired
 	private PremiumRepository premiumRepo;
 	
-	@Autowired
-	private ProtectionRepository protectionRepo;
-
 	@Override
 	public SettlementResponseDTO getSettlement(SettlementRequestDTO request) {
 		SettlementResponseDTO response = new SettlementResponseDTO();
+		List<SettlementDTO> settlements = new ArrayList<>();
+		BigDecimal total = null;
+		
 		response.setTypeId(request.getTypeId());
 		response.setNumberId(request.getNumberId());
 		response.setValue(request.getValue());
 		
-		Map<Long, Double> premiumsOfInsured = new HashMap<>();
-		BigDecimal total = null;
-		
 		Iterable<Premium> premiums = premiumRepo.findAll();
 		
 		for (Premium premium : premiums) {
-			if (validateAge(getAge(request.getNumberId()), premium.getAgeMin(), premium.getAgeMax())) {
-				premiumsOfInsured.put(premium.getCode(), premium.getPremium());
+			if (validateAgeForPremium(getAge(request.getNumberId()), premium.getAgeMin(), premium.getAgeMax())) {
+				SettlementDTO settlement = new SettlementDTO();
+				settlement.setCode(premium.getProtection().getCode());
+				settlement.setName(premium.getProtection().getName());
+				settlement.setPremium(request.getValue() * premium.getPremium());
+				settlements.add(settlement);
+				
+				total = new BigDecimal(settlement.getPremium());
 			}
 		}
-		
-		List<SettlementDTO> settlements = new ArrayList<>();
-		SettlementDTO settlement = new SettlementDTO();
-		
-		for (Map.Entry<Long, Double> entry : premiumsOfInsured.entrySet()) {
-			settlement.setCode(entry.getKey());
-			settlement.setPremium(request.getValue() * entry.getValue());
-			total = new BigDecimal(settlement.getPremium());
-			
-			Optional<Protection> protectionOpt = protectionRepo.findByCode(entry.getKey());
-			if (protectionOpt.isPresent()) {
-				Protection protection = protectionOpt.get();
-				settlement.setName(protection.getName());
-			}
-			
-			settlements.add(settlement);
-		}
-		
+				
 		response.setSettlement(settlements);
 		response.setTotal(total);
 		
@@ -88,7 +70,7 @@ public class InsuranceServiceImpl implements InsuranceService {
 		return age;
 	}
 	
-	private boolean validateAge(int age, int ageMin, int ageMax) {
+	private boolean validateAgeForPremium(int age, int ageMin, int ageMax) {
 		if (age >= ageMin && age <= ageMax) {
 			return true;
 		}
