@@ -1,4 +1,4 @@
-# api-products
+# api-insurances
 API RESTful de seguros
 
 Para probar la API REST seguir estos pasos:
