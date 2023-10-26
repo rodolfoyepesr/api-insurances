@@ -9,11 +9,11 @@
 		<version>2.4.4</version>
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.testvalid</groupId>
-	<artifactId>test-valid</artifactId>
+	<groupId>com.project</groupId>
+	<artifactId>api-insurances</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>test-valid</name>
-	<description>Demo project for Practice Test VALID</description>
+	<name>api-insurances</name>
+	<description>Demo project for Insurances</description>
 	<properties>
 		<java.version>1.8</java.version>
 	</properties>
@@ -34,8 +34,8 @@
 			<optional>true</optional>
 		</dependency>
 		<dependency>
-			<groupId>com.h2database</groupId>
-			<artifactId>h2</artifactId>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
@@ -47,11 +47,6 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.modelmapper</groupId>
-			<artifactId>modelmapper</artifactId>
-			<version>3.1.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springdoc</groupId>
